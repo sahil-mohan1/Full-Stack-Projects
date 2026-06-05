@@ -1,4 +1,4 @@
-# task1
+Student Task Manager
 
 Minimal Vite + React + TypeScript task app.
 
