@@ -1,0 +1,17 @@
+{
+  "name": "ngo-backend",
+  "version": "1.0.0",
+  "description": "NGO Volunteer & Event Management Portal Backend",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch-path=server.js --watch-path=db.js server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "sqlite3": "^5.1.7"
+  }
+}

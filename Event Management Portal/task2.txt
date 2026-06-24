@@ -1,0 +1,240 @@
+React + Node.js Beginner Project Assignment
+NGO Volunteer & Event Management Portal
+
+Objective
+Build a Volunteer & Event Management Portal using:
+- React
+- TypeScript
+- Tailwind CSS v3
+- Node.js
+- Express.js
+- SQLite / MySQL
+
+The purpose of this project is to understand full-stack application development by implementing authentication, CRUD operations, REST APIs, dashboard management, and real-world NGO workflows.
+
+Students are encouraged to use AI tools such as ChatGPT, Claude, Gemini, or GitHub Copilot. However, the focus should be understanding:
+- How React communicates with APIs
+- How backend routes process requests
+- How data flows between frontend and backend
+- How databases store information
+- How state updates affect the UI
+- How full-stack applications are structured
+
+Project Background
+Non-Governmental Organizations (NGOs) often organize:
+- Community Service Events
+- Food Distribution Drives
+- Blood Donation Camps
+- Educational Programs
+- Volunteer Activities
+
+Managing volunteers and events manually can be difficult. This application will help NGOs:
+- Create Events
+- Manage Volunteers
+- Track Registrations
+- Monitor Participation
+
+Features to Implement
+
+1. Volunteer Registration
+Allow volunteers to register with:
+- Full Name
+- Email Address
+- Mobile Number
+- City
+- Skills / Interests
+Example:
+Name: Rahul Kumar
+Email: rahul@gmail.com
+Mobile: 9876543210
+City: Chennai
+Skills: Teaching
+
+2. View Volunteers
+Display all volunteers in a clean card-based layout. Each card should display:
+- Volunteer Name
+- Email
+- Mobile Number
+- City
+- Skills
+- Registration Status
+
+3. Create Event
+Allow NGO administrators to create events with:
+- Event Name
+- Event Description
+- Event Date
+- Event Location
+- Required Volunteers
+Example:
+Event Name: Food Distribution Drive
+Date: 15-Aug-2026
+Location: Chennai
+Required Volunteers: 20
+
+4. View Events
+Display all events. Each event card should display:
+- Event Name
+- Description
+- Date
+- Location
+- Volunteers Joined
+
+5. Volunteer Enrollment
+Allow volunteers to:
+- View Events
+- Register for Events
+When a volunteer joins:
+- Update participant count
+- Show registration status
+
+6. Update Event
+Allow administrators to update:
+- Description
+- Date
+- Location
+- Volunteer Requirement
+
+7. Delete Event
+Allow administrators to remove events.
+
+8. Event Status
+Allow event status management:
+- Upcoming
+- Ongoing
+- Completed
+- Cancelled
+
+9. Dashboard
+Display:
+- Total Volunteers
+- Total Events
+- Upcoming Events
+- Completed Events
+- Active Volunteers
+
+React Concepts to Learn
+
+- Functional Components
+  * Use only Functional Components.
+  * Understand what a component is, why components are reusable, and component communication using props.
+- useState
+  * Use useState to manage Volunteer Data, Event Data, Form Inputs, Dashboard Information, and Search Filters.
+  * Understand what state is, why state updates trigger UI changes, and why state should not be mutated directly.
+- useEffect
+  * Use useEffect for loading data from API, refreshing event lists, and updating dashboard statistics.
+  * Understand component lifecycle, dependency arrays, side effects, and re-render behavior.
+- useContext
+  * Create an NGO Context for Volunteers, Events, and Dashboard Data.
+  * Understand prop drilling problem, global state management, Context Provider, and Context Consumer.
+
+Backend API Requirements
+
+Volunteers:
+- GET /volunteers
+- GET /volunteers/{id}
+- POST /volunteers
+- PUT /volunteers/{id}
+- DELETE /volunteers/{id}
+
+Events:
+- GET /events
+- GET /events/{id}
+- POST /events
+- PUT /events/{id}
+- DELETE /events/{id}
+
+Event Registration:
+- POST /events/{id}/register
+
+Dashboard Statistics:
+- GET /dashboard/stats
+
+Tailwind CSS Requirements
+Design a modern and responsive interface. Include:
+- Responsive Layout
+- Cards
+- Buttons
+- Forms
+- Validation Messages
+- Dashboard Widgets
+- Mobile-Friendly Design
+- Hover Effects
+
+Component Reusability
+Split the application into reusable components. Examples:
+- Header
+- Sidebar
+- Volunteer Form
+- Volunteer Card
+- Event Form
+- Event Card
+- Dashboard Widget
+- Search Filter
+- Empty State Component
+Each component should have a single responsibility.
+
+AI Usage Guidelines
+You may use AI for:
+- Understanding React Concepts
+- Understanding API Integration
+- Debugging Errors
+- Improving Component Structure
+Ask questions such as:
+- How does React communicate with APIs?
+- Why is useEffect needed?
+- How does Context API work?
+- How should components be structured?
+- How is data stored in a database?
+Avoid:
+- Copying entire projects
+- Generating complete applications without understanding
+
+Expected Learning Outcomes
+By completing this project, students should be able to explain:
+1. What is a Functional Component?
+2. What is useState?
+3. What is useEffect?
+4. What is useContext?
+5. What are REST APIs?
+6. How does React communicate with the backend?
+7. How are CRUD operations implemented?
+8. How does a database store data?
+9. How does data flow through a full-stack application?
+10. How does Tailwind CSS improve UI development?
+
+Bonus Challenge
+After completing the basic version:
+- Implement Login & Authentication
+- Add Search Functionality
+- Add Volunteer Analytics Dashboard
+- Export Volunteer Reports
+- Add Event Participation Reports
+- Implement Role-Based Access (Admin / Volunteer)
+
+Submission Requirements
+Submit:
+1. Frontend Source Code
+2. Backend Source Code
+3. Database Script
+4. README.md containing Project Setup Instructions, Features Implemented, and API Endpoint List
+5. Screenshots
+6. API Documentation
+7. Project Report
+
+Success Criteria
+The task is considered complete when:
+[x] Volunteer Registration Works
+[x] Event Creation Works
+[x] Volunteer Enrollment Works
+[x] CRUD Operations Work Correctly
+[x] Backend APIs Function Properly
+[x] Dashboard Displays Statistics
+[x] Responsive Design is Implemented
+[x] Project Follows Standard Folder Structure
+[x] Student Can Explain Frontend-Backend Communication
+
+Workflow Summary:
+Volunteer Registration -> NGO Portal -> Event Management -> Volunteer Enrollment & Dashboard Analytics -> Community Impact Tracking
+
+This project becomes the foundation for future NGO management systems, volunteer tracking platforms, and community engagement applications.
