@@ -48,3 +48,7 @@ Thumbs.db
 .env.production.local
 
 *.pdf
+
+# Postman
+.postman/
+postman/
