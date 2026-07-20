@@ -19,7 +19,7 @@ class AuthController {
         $conn = $db->getConnection();
         
         $stmt = $conn->prepare("
-            SELECT u.id, u.email, u.password_hash, u.is_active, r.name as role 
+            SELECT u.id, u.email, u.password_hash, u.is_active, u.failed_login_attempts, u.locked_until, r.name as role 
             FROM users u 
             JOIN roles r ON u.role_id = r.id 
             WHERE u.email = :email
@@ -27,8 +27,35 @@ class AuthController {
         $stmt->execute(['email' => $data->email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user || !password_verify($data->password, $user['password_hash'])) {
+        if (!$user) {
             echo json_encode(["success" => false, "message" => "Invalid email or password"]);
+            return;
+        }
+
+        // Check if account is locked
+        if ($user['locked_until'] !== null && strtotime($user['locked_until']) > time()) {
+            $minutes_left = ceil((strtotime($user['locked_until']) - time()) / 60);
+            echo json_encode(["success" => false, "message" => "Account locked due to multiple failed attempts. Try again in $minutes_left minutes."]);
+            return;
+        }
+
+        if (!password_verify($data->password, $user['password_hash'])) {
+            // Increment failed login attempts
+            $attempts = $user['failed_login_attempts'] + 1;
+            $locked_until = null;
+            if ($attempts >= 5) {
+                // Lock account for 15 minutes
+                $locked_until = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+            }
+
+            $updateStmt = $conn->prepare("UPDATE users SET failed_login_attempts = :attempts, locked_until = :locked_until WHERE id = :id");
+            $updateStmt->execute(['attempts' => $attempts, 'locked_until' => $locked_until, 'id' => $user['id']]);
+
+            if ($attempts >= 5) {
+                echo json_encode(["success" => false, "message" => "Account locked due to multiple failed attempts. Try again in 15 minutes."]);
+            } else {
+                echo json_encode(["success" => false, "message" => "Invalid email or password"]);
+            }
             return;
         }
 
@@ -36,6 +63,10 @@ class AuthController {
             echo json_encode(["success" => false, "message" => "Account is disabled"]);
             return;
         }
+
+        // Reset failed login attempts on success
+        $resetStmt = $conn->prepare("UPDATE users SET failed_login_attempts = 0, locked_until = NULL, last_login = NOW() WHERE id = :id");
+        $resetStmt->execute(['id' => $user['id']]);
 
         $payload = [
             "iss" => "ems_api",
@@ -61,9 +92,30 @@ class AuthController {
             ]
         ]);
     }
+
+    public function logout() {
+        $headers = apache_request_headers();
+        $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+        
+        if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $jwt = $matches[1];
+            
+            $db = new Database();
+            $conn = $db->getConnection();
+            
+            try {
+                $stmt = $conn->prepare("INSERT IGNORE INTO token_blocklist (token) VALUES (:token)");
+                $stmt->execute(['token' => $jwt]);
+                echo json_encode(["success" => true, "message" => "Logged out successfully"]);
+            } catch (\PDOException $e) {
+                echo json_encode(["success" => false, "message" => "Database error: " . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(["success" => false, "message" => "Token missing"]);
+        }
+    }
     
     public function forgotPassword() {
         echo json_encode(["success" => false, "message" => "Forgot password not implemented yet"]);
     }
 }
-

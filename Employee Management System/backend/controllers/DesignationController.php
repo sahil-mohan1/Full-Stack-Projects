@@ -51,10 +51,14 @@ class DesignationController {
         }
 
         try {
-            $stmt = $this->conn->prepare("INSERT INTO designations (title, department_id) VALUES (:title, :department_id)");
+            $code = !empty($data->designation_code) ? $data->designation_code : 'DESIG-' . strtoupper(substr(uniqid(), -5));
+            $stmt = $this->conn->prepare("INSERT INTO designations (designation_code, title, description, department_id, status) VALUES (:code, :title, :description, :department_id, :status)");
             $stmt->execute([
+                'code' => $code,
                 'title' => $data->title,
-                'department_id' => $data->department_id
+                'description' => $data->description ?? null,
+                'department_id' => $data->department_id,
+                'status' => !empty($data->status) ? $data->status : 'Active'
             ]);
             
             echo json_encode([
@@ -78,10 +82,12 @@ class DesignationController {
         }
 
         try {
-            $stmt = $this->conn->prepare("UPDATE designations SET title = :title, department_id = :department_id WHERE id = :id");
+            $stmt = $this->conn->prepare("UPDATE designations SET title = :title, description = :description, department_id = :department_id, status = :status WHERE id = :id");
             $stmt->execute([
                 'title' => $data->title,
+                'description' => $data->description ?? null,
                 'department_id' => $data->department_id,
+                'status' => !empty($data->status) ? $data->status : 'Active',
                 'id' => $id
             ]);
             

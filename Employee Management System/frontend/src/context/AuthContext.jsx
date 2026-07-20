@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Initial load check is done via initial state, so just stop loading
         setLoading(false);
     }, []);
 
@@ -34,15 +33,22 @@ export const AuthProvider = ({ children }) => {
                 return { success: false, message: result.message };
             }
         } catch (error) {
-            return { success: false, message: 'An error occurred during login' };
+            return { success: false, message: error.response?.data?.message || 'An error occurred during login' };
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-        setToken(null);
+    const logout = async () => {
+        try {
+            // Call backend to invalidate token
+            await api.post('/logout');
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setToken(null);
+        }
     };
 
     return (

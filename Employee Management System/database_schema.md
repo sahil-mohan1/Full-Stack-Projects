@@ -65,8 +65,11 @@ Stores company departments.
 | Column Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | INT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier for department |
+| `department_code` | VARCHAR(50) | NOT NULL, UNIQUE | Auto-generated ID |
 | `name` | VARCHAR(100) | NOT NULL, UNIQUE | Department name (e.g., 'Engineering') |
 | `description` | TEXT | NULL | Details about the department |
+| `department_head_id`| INT | FOREIGN KEY (`employees.id`) | Head of department |
+| `status` | ENUM('Active', 'Inactive') | DEFAULT 'Active' | Current status |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation time |
 
 ### `designations`
@@ -74,8 +77,11 @@ Stores job titles linked to specific departments.
 | Column Name | Data Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
 | `id` | INT | PRIMARY KEY, AUTO_INCREMENT | Unique identifier for designation |
+| `designation_code` | VARCHAR(50) | NOT NULL, UNIQUE | Auto-generated ID |
 | `department_id` | INT | FOREIGN KEY (`departments.id`) | Linked department |
 | `title` | VARCHAR(100) | NOT NULL | Job title (e.g., 'Senior Developer') |
+| `description` | TEXT | NULL | Details about the role |
+| `status` | ENUM('Active', 'Inactive') | DEFAULT 'Active' | Current status |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation time |
 
 ---
@@ -93,15 +99,19 @@ Core table containing employee personal and official information.
 | `last_name` | VARCHAR(50) | NOT NULL | Employee's last name |
 | `gender` | ENUM('Male', 'Female', 'Other') | NOT NULL | Gender |
 | `date_of_birth` | DATE | NOT NULL | Birth date |
+| `nationality` | VARCHAR(50) | NULL | Employee nationality |
 | `blood_group` | VARCHAR(10) | NULL | Blood group |
 | `marital_status`| VARCHAR(20) | NULL | Marital status |
 | `personal_email`| VARCHAR(100) | NOT NULL, UNIQUE | Personal email address |
 | `mobile_number` | VARCHAR(20) | NOT NULL, UNIQUE | Primary mobile number |
+| `alternate_mobile`| VARCHAR(20) | NULL | Secondary mobile number |
 | `emergency_contact` | VARCHAR(20) | NOT NULL | Emergency contact number |
 | `address` | TEXT | NOT NULL | Permanent/Current address |
 | `department_id` | INT | FOREIGN KEY (`departments.id`) | Linked department |
 | `designation_id`| INT | FOREIGN KEY (`designations.id`)| Linked designation |
 | `manager_id` | INT | FOREIGN KEY (`employees.id`) | Reporting Manager |
+| `branch` | VARCHAR(100) | NULL | Work branch |
+| `location` | VARCHAR(100) | NULL | Work location |
 | `employment_type`| ENUM('Full-Time', 'Part-Time', 'Contract') | NOT NULL | Type of employment |
 | `joining_date` | DATE | NOT NULL | Date of joining |
 | `probation_period`| INT | NULL | Probation duration (in months) |
@@ -157,6 +167,8 @@ Tracks daily employee clock-ins and clock-outs.
 | `employee_id` | INT | FOREIGN KEY (`employees.id`) | Associated employee |
 | `date` | DATE | NOT NULL | Date of attendance |
 | `check_in` | DATETIME | NULL | Timestamp of check-in |
+| `location` | VARCHAR(255) | NULL | Location string/coordinates |
+| `device_info` | VARCHAR(255) | NULL | Browser/OS/Device info |
 | `check_out` | DATETIME | NULL | Timestamp of check-out |
 | `status` | ENUM('Present', 'Absent', 'Half Day', 'Leave') | NOT NULL | Daily attendance status |
 | `total_hours` | DECIMAL(5,2) | DEFAULT 0.00 | Calculated total working hours |
@@ -170,7 +182,9 @@ Manages employee leave applications.
 | `leave_type` | ENUM('Sick', 'Casual', 'Earned', 'Maternity') | NOT NULL | Type of leave |
 | `start_date` | DATE | NOT NULL | Start date of leave |
 | `end_date` | DATE | NOT NULL | End date of leave |
+| `half_day` | BOOLEAN | DEFAULT FALSE | Is it a half day leave |
 | `reason` | TEXT | NOT NULL | Applicant's reason |
+| `document_path` | VARCHAR(255) | NULL | Uploaded document path |
 | `status` | ENUM('Pending', 'Approved', 'Rejected', 'Cancelled')| DEFAULT 'Pending' | Status of the request |
 | `approved_by` | INT | FOREIGN KEY (`employees.id`) | Manager/HR who took action |
 | `action_date` | DATETIME | NULL | When the decision was made |
@@ -194,9 +208,9 @@ Tracks company assets assigned to employees.
 | `name` | VARCHAR(100) | NOT NULL | Asset name (e.g., 'MacBook Pro') |
 | `description` | TEXT | NULL | Asset specifics/serial number |
 | `assigned_to` | INT | FOREIGN KEY (`employees.id`) | Employee currently holding asset|
-| `assigned_date` | DATE | NOT NULL | Date given to employee |
+| `assigned_date` | DATE | NULL | Date given to employee |
 | `return_date` | DATE | NULL | Date to be returned / returned |
-| `status` | ENUM('Available', 'Assigned', 'Returned', 'Lost') | DEFAULT 'Available' | Asset condition |
+| `status` | ENUM('Available', 'Assigned', 'Under Maintenance', 'Lost') | DEFAULT 'Available' | Asset condition |
 
 ---
 

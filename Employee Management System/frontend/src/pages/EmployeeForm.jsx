@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Save } from 'lucide-react';
 
 export const EmployeeForm = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [departments, setDepartments] = useState([]);
     const [designations, setDesignations] = useState([]);
     const [managers, setManagers] = useState([]);
+    const [shifts, setShifts] = useState([]);
+
+    const maxDob = new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0];
 
     const [formData, setFormData] = useState({
         // Step 1: Personal
         first_name: '', last_name: '', gender: 'Male', date_of_birth: '',
-        blood_group: '', marital_status: 'Single', personal_email: '',
-        mobile_number: '', emergency_contact: '', address: '',
+        nationality: '', blood_group: '', marital_status: 'Single', personal_email: '',
+        mobile_number: '', alternate_mobile: '', emergency_contact: '', address: '',
         // Step 2: Official
-        employee_code: '', department_id: '', designation_id: '', manager_id: '',
-        employment_type: 'Full-Time', joining_date: '', probation_period: '', status: 'Active',
+        employee_code: '', department_id: '', designation_id: '', manager_id: '', shift_id: '',
+        branch: '', location: '', employment_type: 'Full-Time', joining_date: '', probation_period: '', status: 'Active',
         // Step 3: Bank
         bank_name: '', account_number: '', ifsc_code: '', branch_name: '', account_holder: '',
         // Step 4: Salary
@@ -29,14 +33,23 @@ export const EmployeeForm = () => {
     useEffect(() => {
         const fetchDependencies = async () => {
             try {
-                const [deptRes, desigRes, empRes] = await Promise.all([
+                const [deptRes, desigRes, empRes, shiftRes] = await Promise.all([
                     api.get('/departments'),
                     api.get('/designations'),
-                    api.get('/employees')
+                    api.get('/employees'),
+                    api.get('/shifts')
                 ]);
                 if (deptRes.data.success) setDepartments(deptRes.data.data);
                 if (desigRes.data.success) setDesignations(desigRes.data.data);
-                if (empRes.data.success) setManagers(empRes.data.data); // Anyone can be a manager for now
+                if (empRes.data.success) setManagers(empRes.data.data);
+                if (shiftRes.data.success) setShifts(shiftRes.data.data);
+
+                if (id) {
+                    const empRes = await api.get(`/employees/${id}`);
+                    if (empRes.data.success) {
+                        setFormData(prev => ({ ...prev, ...empRes.data.data }));
+                    }
+                }
             } catch (error) {
                 console.error("Failed to load dependencies");
             }
@@ -55,7 +68,9 @@ export const EmployeeForm = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await api.post('/employees', formData);
+            const res = id 
+                ? await api.put(`/employees/${id}`, formData)
+                : await api.post('/employees', formData);
             if (res.data.success) {
                 navigate('/employees');
             } else {
@@ -71,8 +86,8 @@ export const EmployeeForm = () => {
     return (
         <div className="max-w-4xl mx-auto">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-800">Add New Employee</h1>
-                <p className="text-slate-500 mt-1">Complete the wizard to onboard a new staff member</p>
+                <h1 className="text-3xl font-bold text-slate-800">{id ? 'Edit Employee' : 'Add New Employee'}</h1>
+                <p className="text-slate-500 mt-1">{id ? 'Update employee details' : 'Complete the wizard to onboard a new staff member'}</p>
             </div>
 
             {/* Stepper */}
@@ -112,8 +127,12 @@ export const EmployeeForm = () => {
                             <input type="text" name="mobile_number" required value={formData.mobile_number} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
                         </div>
                         <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Alternate Mobile</label>
+                            <input type="text" name="alternate_mobile" value={formData.alternate_mobile} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                        <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Date of Birth *</label>
-                            <input type="date" name="date_of_birth" required value={formData.date_of_birth} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                            <input type="date" name="date_of_birth" required max={maxDob} value={formData.date_of_birth} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Gender *</label>
@@ -124,6 +143,10 @@ export const EmployeeForm = () => {
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Blood Group</label>
                             <input type="text" name="blood_group" value={formData.blood_group} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Nationality</label>
+                            <input type="text" name="nationality" value={formData.nationality} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Marital Status</label>
@@ -171,8 +194,23 @@ export const EmployeeForm = () => {
                             <label className="block text-sm font-medium text-slate-700 mb-1">Manager</label>
                             <select name="manager_id" value={formData.manager_id} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500">
                                 <option value="">Select Manager</option>
-                                {managers.map(m => <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>)}
+                                {managers.filter(m => m.id.toString() !== id).map(m => <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>)}
                             </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Shift</label>
+                            <select name="shift_id" value={formData.shift_id} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                <option value="">Select Shift</option>
+                                {shifts.map(s => <option key={s.id} value={s.id}>{s.name} ({s.start_time.slice(0,5)} - {s.end_time.slice(0,5)})</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Branch</label>
+                            <input type="text" name="branch" value={formData.branch} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+                            <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Employment Type *</label>
